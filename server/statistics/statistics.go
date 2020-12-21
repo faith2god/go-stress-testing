@@ -74,6 +74,18 @@ func ReceivingResults(concurrent uint64, ch <-chan *model.RequestResults, wg *sy
 		}
 	}()
 
+	// fmt.Printf("\n\n")
+
+	fmt.Println("*************************  结果 stat  ****************************")
+	fmt.Println("处理协程数量:", concurrent)
+	// fmt.Println("处理协程数量:", concurrent, "程序处理总时长:", fmt.Sprintf("%.3f", float64(processingTime/concurrent)/1e9), "秒")
+	fmt.Println("请求总数（并发数*请求数 -c * -n）:", successNum+failureNum, "总请求时间:", fmt.Sprintf("%.3f", float64(requestTime)/1e9),
+		"秒", "successNum:", successNum, "failureNum:", failureNum)
+
+	fmt.Println("*************************  结果 end   ****************************")
+
+	// fmt.Printf("\n\n")
+
 	header()
 
 	for data := range ch {
@@ -120,17 +132,6 @@ func ReceivingResults(concurrent uint64, ch <-chan *model.RequestResults, wg *sy
 
 	calculateData(concurrent, processingTime, requestTime, maxTime, minTime, successNum, failureNum, chanIdLen, errCode, receivedBytes)
 
-	fmt.Printf("\n\n")
-
-	fmt.Println("*************************  结果 stat  ****************************")
-	fmt.Println("处理协程数量:", concurrent)
-	// fmt.Println("处理协程数量:", concurrent, "程序处理总时长:", fmt.Sprintf("%.3f", float64(processingTime/concurrent)/1e9), "秒")
-	fmt.Println("请求总数（并发数*请求数 -c * -n）:", successNum+failureNum, "总请求时间:", fmt.Sprintf("%.3f", float64(requestTime)/1e9),
-		"秒", "successNum:", successNum, "failureNum:", failureNum)
-
-	fmt.Println("*************************  结果 end   ****************************")
-
-	fmt.Printf("\n\n")
 }
 
 // 计算数据
@@ -170,16 +171,18 @@ func calculateData(concurrent, processingTime, requestTime, maxTime, minTime, su
 
 // 打印表头信息
 func header() {
-	fmt.Printf("\n\n")
+	// fmt.Printf("\n\n")
 	// 打印的时长都为毫秒 总请数
-	fmt.Println("─────┬───────┬───────┬───────┬────────┬────────┬────────┬────────┬────────┬────────┬────────")
-	result := fmt.Sprintf(" 耗时│ 并发数│ 成功数│ 失败数│   qps  │最长耗时│最短耗时│平均耗时│下载字节│字节每秒│ 错误码")
+	// fmt.Println("─────┬───────┬───────┬───────┬────────┬────────┬────────┬────────┬────────┬────────┬────────")
+	// Markdown table
+	result := fmt.Sprintf(`
+| 耗时 |并发数| 成功数| 失败数|qps     |最长耗时|最短耗时|平均耗时|下载字节|字节每秒|错误码|
+| :--: | :--: | :--:  | :--:  | :--:   | :--:   | :--:   | :--:   | :--:   | :--:   | :--: |`)
 	fmt.Println(result)
-	// result = fmt.Sprintf("耗时(s)  │总请求数│成功数│失败数│QPS│最长耗时│最短耗时│平均耗时│错误码")
-	// fmt.Println(result)
-	fmt.Println("─────┼───────┼───────┼───────┼────────┼────────┼────────┼────────┼────────┼────────┼────────")
 
-	return
+	// result = fmt.Sprintf("耗时(s)  |总请求数|成功数|失败数|QPS|最长耗时|最短耗时|平均耗时|错误码")
+	// fmt.Println(result)
+	// fmt.Println("─────┼───────┼───────┼───────┼────────┼────────┼────────┼────────┼────────┼────────┼────────")
 }
 
 // 打印表格
@@ -194,7 +197,7 @@ func table(successNum, failureNum uint64, errCode map[int]int, qps, averageTime,
 		speed = 0
 	}
 	// 打印的时长都为毫秒
-	result := fmt.Sprintf("%4.0fs│%7d│%7d│%7d│%8.2f│%8.2f│%8.2f│%8.2f│%8s|%8s│%v",
+	result := fmt.Sprintf("|%4.0fs|%7d|%7d|%7d|%8.2f|%8.2f|%8.2f|%8.2f|%8s|%8s|%v|",
 		requestTimeFloat, chanIdLen, successNum, failureNum, qps, maxTimeFloat, minTimeFloat, averageTime,
 		p.Sprintf("%d", receivedBytes),
 		p.Sprintf("%d", speed),
